@@ -1,0 +1,44 @@
+﻿@using BlazingTrails.Client.Providers;
+
+@page "/"
+@inject ITrailProvider provider
+
+<PageTitle>Blazing Trails</PageTitle>
+
+@if (trails is { })
+{
+    <TrailDetails Trail="selectedTrail" />
+    
+    <TrailSearch />
+
+    <div class="grid">
+        @foreach (var trail in trails)
+        {
+            <TrailCard Trail="trail" OnSelected="SelectTrail" />
+        }
+    </div>
+}
+else
+{
+    <p>Loading trails...</p>
+}
+
+@code {
+    private Trail? selectedTrail = null;
+
+    private IEnumerable<Trail>? trails = null;
+
+    private void SelectTrail(Trail trail) => selectedTrail = trail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            trails = await provider.GetTrailsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"There was a problem loading trail data: {ex.Message}");
+        }
+    }
+}
